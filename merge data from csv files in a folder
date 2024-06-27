@@ -1,0 +1,57 @@
+Sub combine_csv()
+Dim FldrPicker As FileDialog
+Dim myFolder As String
+
+'Have User Select Folder to Save to with Dialog Box
+  Set FldrPicker = Application.FileDialog(msoFileDialogFolderPicker)
+
+  With FldrPicker
+    .Title = "Select A Target Folder"
+    .AllowMultiSelect = False
+    If .Show <> -1 Then Exit Sub 'Check if user clicked cancel button
+    myFolder = .SelectedItems(1) & "\"
+  End With
+  
+  'MsgBox "Folder Path is: " & myFolder
+  
+  Application.ScreenUpdating = False
+Application.DisplayAlerts = False
+Application.Calculation = xlCalculationManual
+
+Application.CutCopyMode = False
+
+  myPath = myFolder
+If Right(myPath, 1) <> "\" Then myPath = myPath & "\"
+myFile = Dir(myPath & "*.csv*")
+
+Do While Len(myFile) > 0
+Set wbk = Workbooks.Open(myPath & myFile)
+last_row_target = wbk.Sheets(1).Cells(Rows.Count, 1).End(xlUp).Row
+last_col_target = wbk.Sheets(1).Cells(1, 1).End(xlToRight).Column
+
+last_row_this = ThisWorkbook.Sheets(1).Cells(Rows.Count, 1).End(xlUp).Row
+
+wbk.Sheets(1).Range(Cells(1, 1), Cells(last_row_target, last_col_target)).Copy
+ThisWorkbook.Sheets(1).Cells(last_row_this, 1).PasteSpecial Paste:=xlPasteValues
+
+wbk.Close True
+
+
+
+
+myFile = Dir
+Loop
+
+Application.ScreenUpdating = True
+Application.DisplayAlerts = True
+Application.Calculation = xlCalculationAutomatic
+
+Application.CutCopyMode = True
+
+MsgBox "Data copied"
+
+End Sub
+
+
+
+
